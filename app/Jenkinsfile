@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'ap-south-1'
+        S3_BUCKET = 'my-app-artifact-bucket-${BUILD_NUMBER}'  // optional if dynamic naming
+        APPLICATION_NAME = 'my-app-codedeploy-app'
+        DEPLOYMENT_GROUP = 'my-app-deployment-group'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/IamY0uu/JenkinsDemo.git'
+            }
+        }
+
+        stage('Zip Artifact') {
+            steps {
+                dir('app') {
+                    sh 'zip -r artifact.zip .'
+                }
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                dir('app') {
+                    sh 'aws s3 cp artifact.zip s3://${S3_BUCKET}/artifact.zip --region $AWS_REGION'
+                }
+            }
+        }
+
+        stage('Deploy via CodeDeploy') {
+            steps {
+                sh '''
+                aws deploy create-deployment \
+                    --application-name $APPLICATION_NAME \
+                    --deployment-group-name $DEPLOYMENT_GROUP \
+                    --s3-location bucket=$S3_BUCKET,key=artifact.zip,bundleType=zip \
+                    --region $AWS_REGION
+                '''
+            }
+        }
+    }
+}

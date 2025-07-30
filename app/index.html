@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EC2 Greet Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      text-align: center;
+      padding-top: 50px;
+    }
+    #ip {
+      font-weight: bold;
+      color: #333;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>👋 Welcome to our site!</h1>
+  <p>Your public IP address is:</p>
+  <p id="ip">Fetching...</p>
+
+  <script>
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('ip').innerText = data.ip;
+      })
+      .catch(error => {
+        document.getElementById('ip').innerText = 'Unable to fetch IP.';
+        console.error(error);
+      });
+  </script>
+</body>
+</html>
+
