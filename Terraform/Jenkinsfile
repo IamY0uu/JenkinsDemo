@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'ap-south-1'
+        AWS_REGION = 'us-east-1'
     }
 
     stages {
@@ -28,14 +28,22 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
-            steps {
-                dir('Terraform') {
+stage('Terraform Apply') {
+    steps {
+        dir('Terraform') {
+            script {
+                try {
                     sh 'terraform apply -auto-approve -var-file=terraform.tfvars'
+                } catch (err) {
+                    echo "Apply failed, cleaning up..."
+                    sh 'terraform destroy -auto-approve -var-file=terraform.tfvars || true'
+                    error("Terraform apply failed: ${err}")
                 }
             }
         }
     }
+}
+
 
     post {
         success {
