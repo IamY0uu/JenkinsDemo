@@ -44,10 +44,11 @@ stage('Terraform Apply') {
     }
 }
 
-
+    
     post {
         success {
             echo 'Infrastructure provisioned successfully.'
         }
     }
+}
 }
