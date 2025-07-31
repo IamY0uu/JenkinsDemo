@@ -2,14 +2,10 @@ provider "aws" {
   region = var.region
 }
 
-module "vpc" {
-  source   = "./modules/vpc"
-  vpc_cidr = var.vpc_cidr
-  vpc_name = "three-tier-vpc"
-}
-
 module "networking" {
   source              = "./modules/networking"
+  vpc_cidr            = var.vpc_cidr
+  vpc_name            = "three-tier-vpc"
   vpc_id              = module.vpc.vpc_id
   public_subnet_cidrs = var.public_subnet_cidrs
   app_subnet_cidrs    = var.app_subnet_cidrs
