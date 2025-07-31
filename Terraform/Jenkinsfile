@@ -28,27 +28,30 @@ pipeline {
             }
         }
 
-stage('Terraform Apply') {
-    steps {
-        dir('Terraform') {
-            script {
-                try {
-                    sh 'terraform apply -auto-approve -var-file=terraform.tfvars'
-                } catch (err) {
-                    echo "Apply failed, cleaning up..."
-                    sh 'terraform destroy -auto-approve -var-file=terraform.tfvars || true'
-                    error("Terraform apply failed: ${err}")
+        stage('Terraform Apply') {
+            steps {
+                dir('Terraform') {
+                    script {
+                        try {
+                            sh 'terraform apply -auto-approve -var-file=terraform.tfvars'
+                        } catch (err) {
+                            echo "Apply failed, cleaning up..."
+                            sh 'terraform destroy -auto-approve -var-file=terraform.tfvars || true'
+                            error("Terraform apply failed: ${err}")
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-    
     post {
         success {
-            echo 'Infrastructure provisioned successfully.'
+            echo ' Infrastructure provisioned successfully.'
+        }
+        failure {
+            echo ' Something went wrong during provisioning.'
+            sh 'terraform destroy -auto-approve -var-file=terraform.tfvars || true' 
         }
     }
-}
 }
